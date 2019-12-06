@@ -28,8 +28,8 @@
 
         <Menu Grid.Row="0" Grid.Column="0" >
             <MenuItem Header="Файл" >
-                <MenuItem Header="Загрузить из БД"/>
-                <MenuItem Header="Сохранить в БД"/>
+                <MenuItem Header="Загрузить из БД" Name="LoadBtn" Click="LoadBtn_Click"/>
+                <MenuItem Header="Сохранить в БД" Name="SaveBtn" Click="SaveBtn_Click"/>
                 <Separator/>
                 <MenuItem Header="Выход" Name="ExitBtn" Click="Exit_Click"/>
             </MenuItem>
@@ -40,14 +40,13 @@
             <Button Content="☐" Click="FullScreen_Click" Margin="5"></Button>
             <Button Content="_" Click="MinScreen_Click" Margin="5"></Button>
         </StackPanel>
-        
 
         <GroupBox Header="Информация" Grid.Row="1" Grid.Column="1">
             <StackPanel>
                 <TextBlock Text="{Binding StringFormat=Текущий курс: {0}$ , Path=CurrentStock.Price}" TextWrapping="Wrap" Margin="5" FontSize="20"></TextBlock>
                 <TextBlock Text="{Binding StringFormat=Средний курс: {0}$ , Path=AverageStock.Price}" TextWrapping="Wrap" Margin="5" FontSize="20"></TextBlock>
-                <Button Name="AvrBtn" Content="{Binding Path=StateAvr}" Click="AvrBtn_Click" Margin="5" ToolTip="Включение/Отключение отображения среднего курса акций."/>
-                <Button Name="StopBtn" Content="{Binding Path=StateBtn}" Click="StopBtn_Click" Margin="5" ToolTip="Включение/Отключение получения данных для графика."/>
+                <Button Name="AvrBtn" Content="Показать средний курс" Click="AvrBtn_Click" Margin="5" ToolTip="Включение/Отключение отображения среднего курса акций."/>
+                <Button Name="StopBtn" Content="Старт" Click="StopBtn_Click" Margin="5" ToolTip="Включение/Отключение получения данных для графика."/>
             </StackPanel>
         </GroupBox>
 

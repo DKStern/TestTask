@@ -4,7 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Media;
 using TestTask.Models;
+using System.Linq;
+using System.Windows;
+using System.Threading.Tasks;
 
 namespace TestTask.ViewModels
 {
@@ -20,8 +24,9 @@ namespace TestTask.ViewModels
         private Stock averageStock;
         private Stock currentStock;
         private bool isLess;
-        private string stateAvr = "Показать средний курс";
-        private string stateBtn = "Стоп";
+        private bool stateAvr = false;
+        private bool stateBtn = false;
+        private bool isUpdating = false;
 
         public Stock CurrentStock
         {
@@ -59,7 +64,7 @@ namespace TestTask.ViewModels
                 NotifyPropertyChanged("IsLess");
             }
         }
-        public string StateAvr
+        public bool StateAvr
         {
             get
             {
@@ -71,7 +76,7 @@ namespace TestTask.ViewModels
                 NotifyPropertyChanged();
             }
         }
-        public string StateBtn
+        public bool StateBtn
         {
             get
             {
@@ -85,48 +90,74 @@ namespace TestTask.ViewModels
         }
 
         public SeriesCollection Series { get; private set; }
-        public List<Stock> history { get; }
+        public List<Stock> History { get; set; }
 
-        public void InitSeries()
+        /// <summary>
+        /// Создаёт график курса акций
+        /// </summary>
+        private void InitSeries()
         {
             Series = new SeriesCollection
             {
                 new LineSeries
                 {
                     Title = "Курс акций",
-                    Values = new ChartValues<double> {currentStock.Price}
+                    Values = new ChartValues<double>()
                 }
             };
         }
 
+        /// <summary>
+        /// Создаёт график среднего курса акций
+        /// </summary>
+        private void CreateAvr()
+        {
+            var line = new LineSeries
+            {
+                Title = "Средний курс",
+                Values = new ChartValues<double>(),
+                Stroke = Brushes.Blue
+            };
+            Series.Add(line);
+            for (int i = 0; i < Series[0].Values.Count; i++)
+            {
+                Series[1].Values.Add(AverageStock.Price);
+            }
+        }
+
+        /// <summary>
+        /// Переключение отображения среднего значения курса акций
+        /// </summary>
+        public void ShowAvr()
+        {
+            if (stateAvr)
+            {
+                Series.RemoveAt(1);
+                stateAvr = false;
+            }
+            else
+            {
+                CreateAvr();
+                stateAvr = true;
+            }
+        }
+
         public StockViewModel()
         {
-            currentStock = new Stock(100.0);
-            averageStock = new Stock(0.0);
-            history = new List<Stock>();
+            CurrentStock = new Stock(100.0);
+            AverageStock = new Stock(0.0);
+            History = new List<Stock>();
+            History.Add(currentStock);
             InitSeries();
+            Series[0].Values.Add(CurrentStock.Price);
         }
 
         public StockViewModel(List<Stock> _history, Stock _cur, Stock _avr)
         {
             currentStock = new Stock(_cur);
             averageStock = new Stock(_avr);
-            history = new List<Stock>(_history);
+            History = new List<Stock>(_history);
             InitSeries();
-        }
-
-        /// <summary>
-        /// Вычисление среднего курса акций
-        /// </summary>
-        /// <returns>Средний курс акций</returns>
-        private double GetAvr()
-        {
-            double avr = 0;
-            foreach(var i in history)
-            {
-                avr += i.Price;
-            }
-            return Math.Round(avr / history.Count, 2);
         }
 
         /// <summary>
@@ -135,14 +166,76 @@ namespace TestTask.ViewModels
         /// <param name="newValue">Новое значение</param>
         public void AddValue(double newValue)
         {
-            history.Add(CurrentStock);
             CurrentStock = new Stock(newValue);
-            AverageStock = new Stock(GetAvr());
+            History.Add(CurrentStock);
+            var avr = Math.Round(History.Average(x => x.Price), 2);
+            AverageStock = new Stock(avr);
             Series[0].Values.Add(newValue);
+            if (stateAvr)
+            {
+                Series[1].Values.Clear();
+                for (int i = 0; i < Series[0].Values.Count; i++)
+                {
+                    Series[1].Values.Add(avr);
+                }
+            }
             if (newValue < AverageStock.Price)
                 IsLess = true;
             else
                 IsLess = false;
+        }
+
+        /// <summary>
+        /// Сохранение данных в БД
+        /// </summary>
+        public void Save()
+        {
+            if (!isUpdating)
+            {
+                isUpdating = true;
+                Task task = Task.Run(() =>
+                {
+                    using (var db = new StockContext())
+                    {
+                        db.Stocks.RemoveRange(db.Stocks);
+                        foreach (var i in History)
+                        {
+                            db.Stocks.Add(i);
+                        }
+                        db.SaveChanges();
+                    }
+                    isUpdating = false;
+                });
+            }
+        }
+
+        /// <summary>
+        /// Загрузка данных из БД
+        /// </summary>
+        public void Load()
+        {
+            var state = StateBtn;
+            if (!isUpdating)
+            {
+                isUpdating = true;
+                StateBtn = false;
+                using (var db = new StockContext())
+                {
+                    History = new List<Stock>(db.Stocks);
+                    Series[0].Values.Clear();
+                    if (Series[1] != null)
+                        Series.RemoveAt(1);
+                    var list = History.Select(x => (object)x.Price).ToList();
+                    Series[0].Values.AddRange(list);
+                    CurrentStock = History.Last();
+                    AverageStock = new Stock(Math.Round(History.Average(x => x.Price),2));
+                    if (StateAvr)
+                        CreateAvr();
+
+                    isUpdating = false;
+                    StateBtn = state;
+                }
+            }
         }
     }
 }

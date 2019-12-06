@@ -2,9 +2,14 @@
 
 namespace TestTask.Models
 {
-    class Stock
+    public class Stock
     {
-        public double Price { get; private set; }
+        public int Id { get; set; }
+
+        public double Price { get; set; }
+
+        public Stock()
+        { }
 
         public Stock(double price)
         {

@@ -25,3 +25,7 @@ C:\Users\Ermol\Documents\GitHub\TestTask\TestTask\TestTask\obj\Debug\TestTask.cs
 C:\Users\Ermol\Documents\GitHub\TestTask\TestTask\TestTask\obj\Debug\TestTask.csproj.CopyComplete
 C:\Users\Ermol\Documents\GitHub\TestTask\TestTask\TestTask\obj\Debug\TestTask.exe
 C:\Users\Ermol\Documents\GitHub\TestTask\TestTask\TestTask\obj\Debug\TestTask.pdb
+C:\Users\Ermol\Documents\GitHub\TestTask\TestTask\TestTask\bin\Debug\EntityFramework.dll
+C:\Users\Ermol\Documents\GitHub\TestTask\TestTask\TestTask\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\Ermol\Documents\GitHub\TestTask\TestTask\TestTask\bin\Debug\EntityFramework.xml
+C:\Users\Ermol\Documents\GitHub\TestTask\TestTask\TestTask\bin\Debug\EntityFramework.SqlServer.xml

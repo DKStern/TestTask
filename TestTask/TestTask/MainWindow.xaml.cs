@@ -2,16 +2,13 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using TestTask.Models;
 using TestTask.ViewModels;
 
 namespace TestTask
 {
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        private bool getValue = true;
         private Task task;
         private StockViewModel stock;
 
@@ -60,7 +57,7 @@ namespace TestTask
         {
             while (true)
             {
-                if (getValue)
+                if (stock.StateBtn)
                 {
                     stock.AddValue(stock.CurrentStock.GetNewPrice());
                     Thread.Sleep(2000);
@@ -94,20 +91,37 @@ namespace TestTask
 
         private void AvrBtn_Click(object sender, RoutedEventArgs e)
         {
-
+            stock.ShowAvr();
+            if (stock.StateAvr)
+                AvrBtn.Content = "Показать средний курс";
+            else
+                AvrBtn.Content = "Спрятать средний курс";
         }
 
         private void StopBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (getValue)
+            if (stock.StateBtn)
             {
-                getValue = false;
-                stock.StateBtn = "Старт";
+                stock.StateBtn = false;
+                StopBtn.Content = "Старт";
             }
             else
             {
-                getValue = true;
-                stock.StateBtn = "Стоп";
+                stock.StateBtn = true;
+                StopBtn.Content = "Стоп";
+            }
+        }
+
+        private void LoadBtn_Click(object sender, RoutedEventArgs e)
+        {
+            stock.Load();
+        }
+
+        private void SaveBtn_Click(object sender, RoutedEventArgs e)
+        {
+            using (var db = new StockContext())
+            {
+                stock.Save();
             }
         }
 
