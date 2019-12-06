@@ -1,0 +1,78 @@
+﻿<Window x:Class="TestTask.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        xmlns:local="clr-namespace:TestTask"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        mc:Ignorable="d"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        Title="Perm Dynamics" Height="720" Width="1280" WindowStartupLocation="CenterScreen" WindowStyle="None">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0" Grid.Column="0" >
+            <MenuItem Header="Файл" >
+                <MenuItem Header="Загрузить из БД"/>
+                <MenuItem Header="Сохранить в БД"/>
+                <Separator/>
+                <MenuItem Header="Выход" Name="ExitBtn" Click="Exit_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" Grid.Row="0" Grid.Column="1">
+            <Button Content="X" Click="Exit_Click" Margin="5"></Button>
+            <Button Content="☐" Click="FullScreen_Click" Margin="5"></Button>
+            <Button Content="_" Click="MinScreen_Click" Margin="5"></Button>
+        </StackPanel>
+        
+
+        <GroupBox Header="Информация" Grid.Row="1" Grid.Column="1">
+            <StackPanel>
+                <TextBlock Text="{Binding StringFormat=Текущий курс: {0}$ , Path=CurrentStock.Price}" TextWrapping="Wrap" Margin="5" FontSize="20"></TextBlock>
+                <TextBlock Text="{Binding StringFormat=Средний курс: {0}$ , Path=AverageStock.Price}" TextWrapping="Wrap" Margin="5" FontSize="20"></TextBlock>
+                <Button Name="AvrBtn" Content="{Binding Path=StateAvr}" Click="AvrBtn_Click" Margin="5" ToolTip="Включение/Отключение отображения среднего курса акций."/>
+                <Button Name="StopBtn" Content="{Binding Path=StateBtn}" Click="StopBtn_Click" Margin="5" ToolTip="Включение/Отключение получения данных для графика."/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="График акций Perm Dynamics" Grid.Row="1" Grid.Column="0">
+            <lvc:CartesianChart Series="{Binding Series}" LegendLocation="Right" >
+                <lvc:CartesianChart.Resources>
+                    <Style TargetType="lvc:LineSeries">
+                        <Setter Property="Stroke" Value="Green"></Setter>
+                        <Setter Property="Fill" Value="Transparent"></Setter>
+                        <Setter Property="LineSmoothness" Value=".5"></Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsLess}" Value="true">
+                                <Setter Property="Stroke" Value="Red"></Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </lvc:CartesianChart.Resources>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="Курс акции"></lvc:Axis>
+                </lvc:CartesianChart.AxisY>
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Title="День"></lvc:Axis>
+                </lvc:CartesianChart.AxisX>
+            </lvc:CartesianChart>
+        </GroupBox>
+        
+    </Grid>
+</Window>
